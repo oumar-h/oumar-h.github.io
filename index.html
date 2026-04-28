@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oumar Hassen // SOC Analyst | Carleton University</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #00ff9d;
+    --green-dim: #00cc7a;
+    --green-dark: #003d25;
+    --green-glow: rgba(0,255,157,0.12);
+    --bg: #090e0c;
+    --bg-panel: #0c1410;
+    --bg-card: #101810;
+    --border: #182a1e;
+    --text: #c0f0d0;
+    --text-dim: #517a64;
+    --text-muted: #28453a;
+    --red: #ff4455;
+    --amber: #ffb300;
+    --cyan: #00e5ff;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content:'';
+    position:fixed; inset:0;
+    background: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px);
+    pointer-events:none; z-index:9999;
+  }
+  .layout { display:grid; grid-template-columns:250px 1fr; min-height:100vh; }
+
+  /* SIDEBAR */
+  .sidebar {
+    border-right:1px solid var(--border);
+    padding:1.75rem 1.25rem;
+    position:sticky; top:0; height:100vh;
+    overflow-y:auto;
+    display:flex; flex-direction:column; gap:1.5rem;
+  }
+  .avatar {
+    width:52px; height:52px;
+    border:2px solid var(--green); border-radius:4px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:20px; color:var(--green);
+    background:var(--green-dark);
+    box-shadow:0 0 18px var(--green-glow);
+    margin-bottom:0.5rem;
+  }
+  .s-name { font-size:15px; font-weight:700; color:var(--green); letter-spacing:.04em; }
+  .s-role { font-size:10px; color:var(--text-dim); letter-spacing:.12em; text-transform:uppercase; margin-top:2px; }
+  .s-school { font-size:10px; color:var(--text-muted); margin-top:4px; }
+  .status { display:flex; align-items:center; gap:6px; font-size:10px; color:var(--text-dim); margin-top:6px; }
+  .dot { width:6px; height:6px; border-radius:50%; background:var(--green); animation:pulse 2s infinite; flex-shrink:0; }
+  @keyframes pulse { 0%,100%{opacity:1;box-shadow:0 0 4px var(--green);} 50%{opacity:.3;box-shadow:none;} }
+
+  .nav-label { font-size:9px; color:var(--text-muted); letter-spacing:.15em; text-transform:uppercase; margin:1rem 0 4px; }
+  .nav-item {
+    display:flex; align-items:center; gap:8px;
+    padding:7px 10px; border-radius:3px; cursor:pointer;
+    color:var(--text-dim); font-size:12px;
+    border:1px solid transparent; transition:all .15s;
+    text-decoration:none;
+  }
+  .nav-item:hover, .nav-item.active { color:var(--green); background:var(--green-glow); border-color:var(--border); }
+  .nav-item .prefix { color:var(--text-muted); font-size:10px; }
+  .nav-item.active .prefix { color:var(--green-dim); }
+  .sidebar-footer {
+    margin-top:auto; font-size:10px; color:var(--text-muted);
+    border-top:1px solid var(--border); padding-top:1rem; line-height:1.9;
+  }
+
+  /* TOPBAR */
+  .topbar {
+    border-bottom:1px solid var(--border);
+    padding:.875rem 2rem;
+    display:flex; align-items:center; gap:1rem;
+    background:var(--bg-panel);
+    position:sticky; top:0; z-index:10;
+  }
+  .breadcrumb { font-size:11px; color:var(--text-muted); display:flex; align-items:center; gap:6px; }
+  .breadcrumb span { color:var(--text-dim); }
+  .topbar-right { margin-left:auto; display:flex; gap:8px; align-items:center; }
+  .badge { font-size:9px; padding:3px 8px; border-radius:2px; letter-spacing:.1em; text-transform:uppercase; }
+  .badge-green { background:var(--green-dark); color:var(--green); border:1px solid #00ff9d22; }
+  .badge-amber { background:#221900; color:var(--amber); border:1px solid #ffb30022; }
+  .badge-cyan  { background:#002030; color:var(--cyan);  border:1px solid #00e5ff22; }
+
+  /* PAGES */
+  .content { padding:2rem; display:none; }
+  .content.active { display:block; }
+
+  /* TERMINAL BLOCKS */
+  .tblock { background:var(--bg-panel); border:1px solid var(--border); border-radius:4px; overflow:hidden; margin-bottom:1.5rem; }
+  .thead { background:#0a1410; border-bottom:1px solid var(--border); padding:7px 14px; display:flex; align-items:center; gap:7px; }
+  .td { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+  .td.r { background:#ff4455; } .td.a { background:#ffb300; } .td.g { background:var(--green); }
+  .ttitle { font-size:10px; color:var(--text-muted); margin-left:4px; }
+  .tbody { padding:1.25rem 1.5rem; font-size:12px; line-height:2; }
+  .cmd { color:var(--green); }
+  .cmd::before { content:'$ '; color:var(--text-muted); }
+  .out  { color:var(--text-dim); }
+  .og   { color:var(--green); }
+  .oa   { color:var(--amber); }
+  .oc   { color:var(--cyan); }
+  .om   { color:var(--text-muted); }
+  .cursor { display:inline-block; width:7px; height:13px; background:var(--green); animation:blink 1s step-end infinite; vertical-align:middle; margin-left:2px; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+  /* STAT CARDS */
+  .grid2 { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; margin-bottom:1.5rem; }
+  .card { background:var(--bg-card); border:1px solid var(--border); border-radius:4px; padding:1.1rem; position:relative; overflow:hidden; }
+  .card::before { content:''; position:absolute; top:0;left:0;right:0; height:2px; background:var(--green); opacity:.5; }
+  .card-label { font-size:9px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.15em; margin-bottom:6px; }
+  .card-value { font-size:20px; font-weight:700; color:var(--green); }
+  .card-sub { font-size:11px; color:var(--text-dim); margin-top:4px; }
+
+  /* SECTION HEADER */
+  .sh { display:flex; align-items:center; gap:10px; margin-bottom:1.25rem; }
+  .sh h2 { font-size:11px; font-weight:500; color:var(--green); text-transform:uppercase; letter-spacing:.15em; white-space:nowrap; }
+  .sh::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  /* SKILL BARS */
+  .skill-row { display:flex; align-items:center; gap:1rem; margin-bottom:10px; }
+  .skill-name { width:150px; font-size:11px; color:var(--text-dim); flex-shrink:0; }
+  .bar-bg { flex:1; height:3px; background:var(--border); border-radius:2px; overflow:hidden; }
+  .bar-fill { height:100%; background:var(--green); border-radius:2px; }
+  .bar-pct { font-size:10px; color:var(--text-muted); width:30px; text-align:right; }
+
+  /* PROJECT CARDS */
+  .pcard { background:var(--bg-card); border:1px solid var(--border); border-radius:4px; padding:1.25rem; margin-bottom:1rem; transition:border-color .2s; }
+  .pcard:hover { border-color:#253d2e; }
+  .ptop { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; margin-bottom:8px; }
+  .pname { font-size:13px; font-weight:700; color:var(--green); }
+  .plang { font-size:9px; color:var(--text-muted); background:var(--bg); border:1px solid var(--border); padding:2px 8px; border-radius:2px; white-space:nowrap; }
+  .pdesc { font-size:11px; color:var(--text-dim); line-height:1.8; margin-bottom:10px; }
+  .tags { display:flex; flex-wrap:wrap; gap:5px; }
+  .tag { font-size:9px; padding:2px 7px; border-radius:2px; background:var(--green-dark); color:var(--green-dim); border:1px solid #00ff9d1a; }
+  .mitre { font-size:9px; color:var(--red); background:#150306; border:1px solid #ff445520; padding:2px 6px; border-radius:2px; }
+
+  /* TIMELINE */
+  .tl-item { margin-bottom:1.75rem; padding-bottom:1.75rem; border-bottom:1px solid var(--border); }
+  .tl-item:last-child { border-bottom:none; margin-bottom:0; padding-bottom:0; }
+  .tl-date { font-size:10px; color:var(--text-muted); margin-bottom:5px; }
+  .tl-title { font-size:13px; font-weight:500; color:var(--text); margin-bottom:3px; }
+  .tl-org { font-size:11px; color:var(--green-dim); margin-bottom:10px; }
+  .tl-org span { color:var(--text-muted); }
+  .tl-bullets { list-style:none; }
+  .tl-bullets li { font-size:11px; color:var(--text-dim); line-height:1.8; padding-left:18px; position:relative; margin-bottom:2px; }
+  .tl-bullets li::before { content:'->'; position:absolute; left:0; color:var(--text-muted); font-size:9px; top:5px; }
+
+  /* CERTS */
+  .cert-item { display:flex; align-items:center; gap:1rem; padding:10px 0; border-bottom:1px solid var(--border); }
+  .cert-item:last-child { border-bottom:none; }
+  .cert-icon { width:30px; height:30px; border:1px solid var(--border); border-radius:3px; display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0; background:var(--bg); }
+  .cert-name { font-size:12px; color:var(--text); flex:1; }
+  .cert-s { font-size:9px; padding:2px 8px; border-radius:2px; white-space:nowrap; }
+  .done { background:var(--green-dark); color:var(--green); border:1px solid #00ff9d22; }
+  .wip  { background:#221900; color:var(--amber); border:1px solid #ffb30022; }
+  .plan { background:#0d1a2a; color:var(--cyan); border:1px solid #00e5ff22; }
+
+  /* CONTACT LINKS */
+  .litem { display:flex; align-items:center; gap:10px; padding:10px 14px; border:1px solid var(--border); border-radius:3px; color:var(--text-dim); font-size:12px; text-decoration:none; margin-bottom:8px; transition:all .15s; background:var(--bg-card); }
+  .litem:hover { color:var(--green); border-color:#253d2e; background:var(--green-glow); }
+  .lprefix { color:var(--text-muted); font-size:10px; flex-shrink:0; }
+
+  /* HERO */
+  .hero-pre { font-size:10px; color:var(--text-muted); letter-spacing:.15em; text-transform:uppercase; margin-bottom:6px; }
+  .hero-name { font-size:28px; font-weight:700; color:var(--green); letter-spacing:.02em; line-height:1.2; text-shadow:0 0 30px rgba(0,255,157,.25); }
+  .hero-title { font-size:13px; color:var(--text-dim); margin-top:6px; letter-spacing:.04em; }
+  .hero-title span { color:var(--green-dim); }
+
+  @media(max-width:768px){
+    .layout { grid-template-columns:1fr; }
+    .sidebar { position:static; height:auto; border-right:none; border-bottom:1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div>
+      <div class="avatar">&#x25A2;</div>
+      <div class="s-name">Oumar Hassen</div>
+      <div class="s-role">SOC Analyst Candidate</div>
+      <div class="s-school">Carleton University &middot; BCS Computer amd Internet Security</div>
+      <div class="status"><div class="dot"></div>seeking fall 2026 internship</div>
+    </div>
+
+    <nav>
+      <div class="nav-label">navigation</div>
+      <a class="nav-item active" onclick="show('home',this)" href="#"><span class="prefix">~/</span> home</a>
+      <a class="nav-item" onclick="show('about',this)" href="#"><span class="prefix">~/</span> whoami</a>
+      <a class="nav-item" onclick="show('experience',this)" href="#"><span class="prefix">~/</span> experience</a>
+      <a class="nav-item" onclick="show('projects',this)" href="#"><span class="prefix">~/</span> projects</a>
+      <a class="nav-item" onclick="show('skills',this)" href="#"><span class="prefix">~/</span> skills</a>
+      <a class="nav-item" onclick="show('certifications',this)" href="#"><span class="prefix">~/</span> certifications</a>
+      <a class="nav-item" onclick="show('contact',this)" href="#"><span class="prefix">~/</span> contact</a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div>github.com/blaugrana490</div>
+      <div>Ottawa / Toronto, ON</div>
+      <div>oumar.hassen@outlook.com</div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main>
+    <div class="topbar">
+      <div class="breadcrumb">
+        <span>oumar-hassen</span>
+        <span style="color:var(--text-muted)">/</span>
+        <span id="crumb">home</span>
+      </div>
+      <div class="topbar-right">
+        <span class="badge badge-green">open to work</span>
+        <span class="badge badge-amber">fall 2026</span>
+        <span class="badge badge-cyan">Ottawa &middot; Toronto</span>
+      </div>
+    </div>
+
+    <!-- HOME -->
+    <div class="content active" id="page-home">
+      <div style="margin-bottom:1.5rem;">
+        <div class="hero-pre">// security operations</div>
+        <div class="hero-name">Oumar Hassen</div>
+        <div class="hero-title">aspiring <span>SOC analyst</span> &middot; Carleton BCS Computer &amp; Internet Security</div>
+      </div>
+
+      <div class="tblock">
+        <div class="thead"><div class="td r"></div><div class="td a"></div><div class="td g"></div><span class="ttitle">bash &mdash; init.sh</span></div>
+        <div class="tbody">
+          <div class="cmd">whoami</div>
+          <div class="out">Oumar Hassen &mdash; cybersecurity student, Ottawa/Toronto</div>
+          <div class="out">Carleton University &middot; BCS Computer and Internet Security &middot; 2023&ndash;present</div>
+          <br>
+          <div class="cmd">cat experience.txt</div>
+          <div class="out">SOC Analyst Intern @ Harari Heritage Center (Jun&ndash;Dec 2025)</div>
+          <div class="out">Safeguarded 1,000+ members' data &middot; ran phishing simulations &middot; delivered security training</div>
+          <br>
+          <div class="cmd">ls tools/</div>
+          <div class="og">splunk &nbsp;&nbsp; kali-linux &nbsp;&nbsp; nmap &nbsp;&nbsp; wireshark &nbsp;&nbsp; linux-cli</div>
+          <div class="og">mitre-attack &nbsp;&nbsp; siem &nbsp;&nbsp; log-analysis &nbsp;&nbsp; incident-response</div>
+          <br>
+          <div class="cmd">cat target.txt</div>
+          <div class="oa">role   -> SOC Analyst Intern (L1/L2)</div>
+          <div class="oa">term   -> Fall 2026 (Sept&ndash;Dec)</div>
+          <div class="oa">cities -> Ottawa, ON &amp;&amp; Toronto, ON</div>
+          <br>
+          <div class="cmd"><span class="cursor"></span></div>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="card-label">real security experience</div>
+          <div class="card-value">6 mo</div>
+          <div class="card-sub">SOC Analyst Intern &middot; Harari Heritage Center</div>
+        </div>
+        <div class="card">
+          <div class="card-label">data secured</div>
+          <div class="card-value">1,000+</div>
+          <div class="card-sub">members' personal &amp; payment records</div>
+        </div>
+        <div class="card">
+          <div class="card-label">SOC lab investigations</div>
+          <div class="card-value">5+</div>
+          <div class="card-sub">brute force &middot; recon &middot; account compromise</div>
+        </div>
+        <div class="card">
+          <div class="card-label">MITRE ATT&amp;CK</div>
+          <div class="card-value" style="font-size:13px;">T1110 &middot; T1046 &middot; T1059</div>
+          <div class="card-sub">mapped to real lab findings</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WHOAMI -->
+    <div class="content" id="page-about">
+      <div class="sh"><h2>whoami</h2></div>
+      <div class="tblock">
+        <div class="thead"><div class="td r"></div><div class="td a"></div><div class="td g"></div><span class="ttitle">bash &mdash; profile.sh</span></div>
+        <div class="tbody">
+          <div class="out"><span class="oc">name</span>       -> Oumar Hassen</div>
+          <div class="out"><span class="oc">email</span>      -> oumar.hassen@outlook.com</div>
+          <div class="out"><span class="oc">location</span>   -> Ottawa / Toronto, Ontario, CA</div>
+          <div class="out"><span class="oc">github</span>     -> github.com/blaugrana490</div>
+          <div class="out"><span class="oc">linkedin</span>   -> linkedin.com/in/oumar-hassen-0775543bb</div>
+          <div class="out"><span class="oc">education</span>  -> Carleton University, BCS Computer &amp; Internet Security</div>
+          <div class="out"><span class="oc">enrolled</span>   -> August 2023 &ndash; present</div>
+          <div class="out"><span class="oc">target</span>     -> SOC Analyst Intern &middot; Fall 2026 &middot; Ottawa | Toronto</div>
+          <br>
+          <div class="om"># about</div>
+          <br>
+          <div class="out">I'm a cybersecurity student at Carleton University specializing in</div>
+          <div class="out">Computer and Internet Security. I've worked as a SOC Analyst Intern</div>
+          <div class="out"> at Harari Heritage Center &mdash; protecting 1,000+ members'</div>
+          <div class="out">personal and payment data, running phishing and smishing simulations,</div>
+          <div class="out">and delivering security awareness training to non-technical audiences.</div>
+          <br>
+          <div class="out">Outside of work, I built a full SOC investigation lab simulating</div>
+          <div class="out">SSH brute force, Nmap recon, account compromise, and suspicious</div>
+          <div class="out">processes &mdash; all analyzed in Splunk with custom alerts and reports.</div>
+          <br>
+          <div class="out">I also shipped a production full-stack web platform (React, MongoDB,</div>
+          <div class="out">Stripe) proving I can build secure systems, not just defend them.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXPERIENCE -->
+    <div class="content" id="page-experience">
+      <div class="sh"><h2>experience</h2></div>
+      <div class="tblock">
+        <div class="thead"><div class="td r"></div><div class="td a"></div><div class="td g"></div><span class="ttitle">experience.log</span></div>
+        <div class="tbody">
+
+          <div class="tl-item">
+            <div class="tl-date">June 2025 &ndash; December 2025</div>
+            <div class="tl-title">SOC Analyst Intern</div>
+            <div class="tl-org">Harari Heritage Center <span>&middot; Scarborough, ON</span></div>
+            <ul class="tl-bullets">
+              <li>Safeguarded sensitive personal and payment data for 1,000+ members via secure storage, access controls, and data protection measures</li>
+              <li>Supported data governance and internal audit reviews, collaborating with board members and stakeholders to maintain data integrity</li>
+              <li>Conducted controlled social engineering simulations (phishing &amp; smishing) to assess and improve security awareness</li>
+              <li>Delivered cybersecurity safety training on phishing, smishing, and vishing threats to community members including non-technical audiences</li>
+              <li>Reviewed activity and access records to support monitoring efforts and identify internal policy violations</li>
+              <li>Improved data handling workflows to strengthen accountability and reduce unnecessary data exposure</li>
+              <li>Promoted secure information-handling practices among staff and volunteers to reduce human-related security risks</li>
+            </ul>
+          </div>
+
+          <div class="tl-item">
+            <div class="tl-date">March 2022 &ndash; July 2023</div>
+            <div class="tl-title">Public Sector Community Outreach Representative</div>
+            <div class="tl-org">Liberal Party of Canada <span>&middot; Scarborough, ON</span></div>
+            <ul class="tl-bullets">
+              <li>Engaged 1,000+ community members over a structured 4-month field outreach period applying situational and environmental awareness</li>
+              <li>Coordinated with federal political offices supporting MP Salma Zahid and MPP candidate Mazhar Shafiq, following established communication protocols</li>
+              <li>Maintained outreach logs and interaction records reinforcing accuracy, transparency, and responsible information handling</li>
+              <li>Applied behavioral awareness and conflict de-escalation skills in high-trust public environments with diverse viewpoints</li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- PROJECTS -->
+    <div class="content" id="page-projects">
+      <div class="sh"><h2>projects</h2></div>
+
+      <div class="pcard">
+        <div class="ptop">
+          <div class="pname">SOC Investigation Lab</div>
+          <span class="plang">Kali &middot; Splunk &middot; Linux</span>
+        </div>
+        <div class="pdesc">
+          Simulated and investigated five real-world attack scenarios on a controlled Linux environment.
+          Detected 47+ failed SSH login attempts (T1110.001) from a single source IP within 60 seconds,
+          triggering a custom Splunk threshold alert. Identified Nmap reconnaissance patterns (T1046),
+          investigated suspicious processes with abnormal CPU usage, and analyzed account compromise
+          scenarios. All events ingested into Splunk with SPL queries, custom dashboards, and full SOC reports.
+        </div>
+        <div class="tags">
+          <span class="tag">Splunk SIEM</span>
+          <span class="tag">Kali Linux</span>
+          <span class="tag">Nmap</span>
+          <span class="tag">Wireshark</span>
+          <span class="tag">Log Analysis</span>
+          <span class="tag">Incident Response</span>
+          <span class="tag">SPL Queries</span>
+          <span class="mitre">T1110.001</span>
+          <span class="mitre">T1046</span>
+          <span class="mitre">T1059</span>
+          <span class="mitre">T1078</span>
+        </div>
+      </div>
+
+      <div class="pcard">
+        <div class="ptop">
+          <div class="pname">Harari EBDAL Cultural Platform</div>
+          <span class="plang">React &middot; Node &middot; MongoDB</span>
+        </div>
+        <div class="pdesc">
+          Full-stack cultural platform with React/Vite frontend and Vercel serverless APIs handling
+          subscriptions, donations, and admin management. Integrated Stripe Checkout and webhook handling
+          for secure payment processing. Designed MongoDB Atlas database with Brevo SMTP email automation.
+          Deployed production-ready app with secure environment configuration and authenticated admin dashboard.
+        </div>
+        <div class="tags">
+          <span class="tag">React</span>
+          <span class="tag">Vite</span>
+          <span class="tag">Tailwind CSS</span>
+          <span class="tag">Node.js</span>
+          <span class="tag">MongoDB Atlas</span>
+          <span class="tag">Stripe</span>
+          <span class="tag">Vercel</span>
+          <span class="tag">Brevo SMTP</span>
+          <span class="tag">Serverless APIs</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SKILLS -->
+    <div class="content" id="page-skills">
+      <div class="sh"><h2>skills</h2></div>
+
+      <div class="grid2" style="margin-bottom:1.5rem;">
+        <div>
+          <div class="tblock">
+            <div class="thead"><div class="td r"></div><div class="td a"></div><div class="td g"></div><span class="ttitle">cybersecurity &amp; SOC</span></div>
+            <div class="tbody" style="padding:1.25rem;">
+              <div class="skill-row"><span class="skill-name">Splunk SIEM</span><div class="bar-bg"><div class="bar-fill" style="width:83%"></div></div><span class="bar-pct">83%</span></div>
+              <div class="skill-row"><span class="skill-name">Log Analysis</span><div class="bar-bg"><div class="bar-fill" style="width:85%"></div></div><span class="bar-pct">85%</span></div>
+              <div class="skill-row"><span class="skill-name">Kali Linux</span><div class="bar-bg"><div class="bar-fill" style="width:78%"></div></div><span class="bar-pct">78%</span></div>
+              <div class="skill-row"><span class="skill-name">Nmap</span><div class="bar-bg"><div class="bar-fill" style="width:80%"></div></div><span class="bar-pct">80%</span></div>
+              <div class="skill-row"><span class="skill-name">Wireshark</span><div class="bar-bg"><div class="bar-fill" style="width:72%"></div></div><span class="bar-pct">72%</span></div>
+              <div class="skill-row"><span class="skill-name">MITRE ATT&amp;CK</span><div class="bar-bg"><div class="bar-fill" style="width:70%"></div></div><span class="bar-pct">70%</span></div>
+              <div class="skill-row"><span class="skill-name">Incident Response</span><div class="bar-bg"><div class="bar-fill" style="width:74%"></div></div><span class="bar-pct">74%</span></div>
+              <div class="skill-row"><span class="skill-name">Network Security</span><div class="bar-bg"><div class="bar-fill" style="width:70%"></div></div><span class="bar-pct">70%</span></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="tblock">
+            <div class="thead"><div class="td r"></div><div class="td a"></div><div class="td g"></div><span class="ttitle">development</span></div>
+            <div class="tbody" style="padding:1.25rem;">
+              <div class="skill-row"><span class="skill-name">Python</span><div class="bar-bg"><div class="bar-fill" style="width:78%"></div></div><span class="bar-pct">78%</span></div>
+              <div class="skill-row"><span class="skill-name">Java / C / C++</span><div class="bar-bg"><div class="bar-fill" style="width:72%"></div></div><span class="bar-pct">72%</span></div>
+              <div class="skill-row"><span class="skill-name">JavaScript</span><div class="bar-bg"><div class="bar-fill" style="width:75%"></div></div><span class="bar-pct">75%</span></div>
+              <div class="skill-row"><span class="skill-name">React / Vite</span><div class="bar-bg"><div class="bar-fill" style="width:72%"></div></div><span class="bar-pct">72%</span></div>
+              <div class="skill-row"><span class="skill-name">Node / Express</span><div class="bar-bg"><div class="bar-fill" style="width:68%"></div></div><span class="bar-pct">68%</span></div>
+              <div class="skill-row"><span class="skill-name">SQL / PostgreSQL</span><div class="bar-bg"><div class="bar-fill" style="width:65%"></div></div><span class="bar-pct">65%</span></div>
+              <div class="skill-row"><span class="skill-name">MongoDB</span><div class="bar-bg"><div class="bar-fill" style="width:70%"></div></div><span class="bar-pct">70%</span></div>
+              <div class="skill-row"><span class="skill-name">Docker / GCP</span><div class="bar-bg"><div class="bar-fill" style="width:60%"></div></div><span class="bar-pct">60%</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tblock">
+        <div class="thead"><div class="td r"></div><div class="td a"></div><div class="td g"></div><span class="ttitle">full tech stack</span></div>
+        <div class="tbody">
+          <div class="out"><span class="oc">languages</span>  -> Java &middot; Python &middot; C/C++ &middot; SQL &middot; JavaScript &middot; HTML/CSS &middot; R</div>
+          <div class="out"><span class="oc">frontend</span>   -> React &middot; Vite &middot; Tailwind CSS</div>
+          <div class="out"><span class="oc">backend</span>    -> Node.js &middot; Express.js &middot; Flask &middot; FastAPI &middot; RESTful APIs &middot; Serverless</div>
+          <div class="out"><span class="oc">databases</span>  -> MongoDB Atlas &middot; PostgreSQL</div>
+          <div class="out"><span class="oc">cloud</span>      -> Vercel &middot; Docker &middot; Google Cloud Platform</div>
+          <div class="out"><span class="oc">security</span>   -> Linux &middot; Splunk SIEM &middot; Nmap &middot; Wireshark &middot; Kali &middot; Network Security</div>
+          <div class="out"><span class="oc">security+</span>  -> Web App Security &middot; Auth &amp; Session Mgmt &middot; API Security</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CERTIFICATIONS -->
+    <div class="content" id="page-certifications">
+      <div class="sh"><h2>certifications</h2></div>
+
+      <div class="tblock">
+        <div class="thead"><div class="td r"></div><div class="td a"></div><div class="td g"></div><span class="ttitle">certs.json</span></div>
+        <div class="tbody">
+          <div class="cert-item">
+            <div class="cert-icon">&#x1F4B3;</div>
+            <div class="cert-name">Mastercard &mdash; Cybersecurity Job Simulation</div>
+            <span class="cert-s done">completed</span>
+          </div>
+          <div class="cert-item">
+            <div class="cert-icon">&#x1F4BC;</div>
+            <div class="cert-name">Deloitte &mdash; Cyber Job Simulation</div>
+            <span class="cert-s done">completed</span>
+          </div>
+          <div class="cert-item">
+            <div class="cert-icon">&#x1F4BB;</div>
+            <div class="cert-name">Tata &mdash; Cybersecurity Analyst Job Simulation</div>
+            <span class="cert-s done">completed</span>
+          </div>
+          <div class="cert-item">
+            <div class="cert-icon">&#x1F510;</div>
+            <div class="cert-name">CompTIA Security+</div>
+            <span class="cert-s wip">in progress</span>
+          </div>
+          <div class="cert-item">
+            <div class="cert-icon">&#x26D3;</div>
+            <div class="cert-name">CompTIA Network+</div>
+            <span class="cert-s wip">in progress</span>
+          </div>
+          <div class="cert-item">
+            <div class="cert-icon">&#x1F4CA;</div>
+            <div class="cert-name">Splunk Core Certified User</div>
+            <span class="cert-s plan">planned</span>
+          </div>
+          <div class="cert-item">
+            <div class="cert-icon">&#x2694;</div>
+            <div class="cert-name">Cisco CyberOps Associate</div>
+            <span class="cert-s plan">planned</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tblock">
+        <div class="thead"><div class="td r"></div><div class="td a"></div><div class="td g"></div><span class="ttitle">education</span></div>
+        <div class="tbody">
+          <div class="out"><span class="oc">school</span>  -> Carleton University, Ottawa, ON</div>
+          <div class="out"><span class="oc">degree</span>  -> Bachelor of Computer Science</div>
+          <div class="out"><span class="oc">major</span>   -> Computer and Internet Security</div>
+          <div class="out"><span class="oc">period</span>  -> August 2023 &ndash; present</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTACT -->
+    <div class="content" id="page-contact">
+      <div class="sh"><h2>contact</h2></div>
+      <div class="tblock">
+        <div class="thead"><div class="td r"></div><div class="td a"></div><div class="td g"></div><span class="ttitle">contact.sh</span></div>
+        <div class="tbody">
+          <div class="cmd">cat availability.txt</div>
+          <br>
+          <div class="out">Open to SOC analyst internship opportunities for fall 2026</div>
+          <div class="out">in Ottawa and Toronto. Response within 24h.</div>
+        </div>
+      </div>
+      <div style="margin-top:1rem;">
+        <a class="litem" href="mailto:oumar.hassen@outlook.com">
+          <span class="lprefix">mailto://</span>oumar.hassen@outlook.com
+        </a>
+        <a class="litem" href="https://github.com/blaugrana490" target="_blank">
+          <span class="lprefix">git://</span>github.com/blaugrana490
+        </a>
+        <a class="litem" href="https://www.linkedin.com/in/oumar-hassen-0775543bb/" target="_blank">
+          <span class="lprefix">ln://</span>linkedin.com/in/oumar-hassen
+        </a>
+        <a class="litem" href="resume.pdf" download="Oumar_Hassen_Resume.pdf">
+          <span class="lprefix">dl://</span>Oumar_Hassen_Resume.pdf
+        </a>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  function show(page, el) {
+    event.preventDefault();
+    document.querySelectorAll('.content').forEach(e => e.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
+    document.getElementById('page-' + page).classList.add('active');
+    document.getElementById('crumb').textContent = page;
+    el.classList.add('active');
+  }
+</script>
+</body>
+</html>
