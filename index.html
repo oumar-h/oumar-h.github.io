@@ -136,16 +136,149 @@
   .bar-fill { height:100%; background:var(--green); border-radius:2px; }
   .bar-pct { font-size:10px; color:var(--text-muted); width:30px; text-align:right; }
 
-  /* PROJECT CARDS */
-  .pcard { background:var(--bg-card); border:1px solid var(--border); border-radius:4px; padding:1.25rem; margin-bottom:1rem; transition:border-color .2s; }
-  .pcard:hover { border-color:#253d2e; }
-  .ptop { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; margin-bottom:8px; }
-  .pname { font-size:13px; font-weight:700; color:var(--green); }
-  .plang { font-size:9px; color:var(--text-muted); background:var(--bg); border:1px solid var(--border); padding:2px 8px; border-radius:2px; white-space:nowrap; }
-  .pdesc { font-size:11px; color:var(--text-dim); line-height:1.8; margin-bottom:10px; }
+  /* ── PROJECT CARDS (redesigned) ── */
+  .projects-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .pcard {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    transition: border-color .2s, box-shadow .2s;
+    position: relative;
+  }
+  .pcard:hover {
+    border-color: #2a5c3a;
+    box-shadow: 0 0 24px rgba(0,255,157,0.05);
+  }
+  .pcard-accent {
+    height: 2px;
+    width: 100%;
+  }
+  .pcard-accent.green  { background: linear-gradient(90deg, var(--green), transparent); }
+  .pcard-accent.cyan   { background: linear-gradient(90deg, var(--cyan), transparent); }
+  .pcard-accent.amber  { background: linear-gradient(90deg, var(--amber), transparent); }
+
+  .pcard-inner { padding: 1.25rem 1.5rem; }
+
+  .pcard-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .pcard-left { display: flex; flex-direction: column; gap: 4px; }
+
+  .pcard-number {
+    font-size: 9px;
+    color: var(--text-muted);
+    letter-spacing: .2em;
+    text-transform: uppercase;
+  }
+
+  .pname {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--green);
+    letter-spacing: .02em;
+  }
+
+  .pcard-right { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+
+  .pstatus {
+    font-size: 9px;
+    padding: 2px 8px;
+    border-radius: 2px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .pstatus.live     { background: var(--green-dark); color: var(--green);  border: 1px solid #00ff9d22; }
+  .pstatus.personal { background: #001a2a; color: var(--cyan);  border: 1px solid #00e5ff22; }
+  .pstatus.lab      { background: #1a1000; color: var(--amber); border: 1px solid #ffb30022; }
+
+  .plang {
+    font-size: 9px;
+    color: var(--text-muted);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 2px 8px;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+
+  .pcard-meta {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 0.75rem;
+    padding: 0.6rem 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .pmeta-item { display: flex; flex-direction: column; gap: 2px; }
+  .pmeta-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .12em; }
+  .pmeta-val   { font-size: 11px; color: var(--text-dim); }
+
+  .pdesc {
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.85;
+    margin-bottom: 1rem;
+  }
+
+  .pcard-bullets {
+    list-style: none;
+    margin-bottom: 1rem;
+  }
+  .pcard-bullets li {
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.8;
+    padding-left: 18px;
+    position: relative;
+    margin-bottom: 2px;
+  }
+  .pcard-bullets li::before {
+    content: '->';
+    position: absolute;
+    left: 0;
+    color: var(--text-muted);
+    font-size: 9px;
+    top: 5px;
+  }
+
   .tags { display:flex; flex-wrap:wrap; gap:5px; }
   .tag { font-size:9px; padding:2px 7px; border-radius:2px; background:var(--green-dark); color:var(--green-dim); border:1px solid #00ff9d1a; }
+  .tag-cyan { background:#001a2a; color:var(--cyan); border:1px solid #00e5ff1a; }
   .mitre { font-size:9px; color:var(--red); background:#150306; border:1px solid #ff445520; padding:2px 6px; border-radius:2px; }
+
+  /* GITHUB LINK */
+  .pcard-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0.6rem 1.5rem;
+    background: #0a1410;
+    border-top: 1px solid var(--border);
+  }
+  .gh-link {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-decoration: none;
+    letter-spacing: .05em;
+    transition: color .15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .gh-link:hover { color: var(--green); }
+  .gh-link::before { content: 'git://'; font-size: 9px; color: var(--text-muted); }
 
   /* TIMELINE */
   .tl-item { margin-bottom:1.75rem; padding-bottom:1.75rem; border-bottom:1px solid var(--border); }
@@ -194,7 +327,7 @@
       <div class="avatar">&#x25A2;</div>
       <div class="s-name">Oumar Hassen</div>
       <div class="s-role">SOC Analyst Candidate</div>
-      <div class="s-school">Carleton University &middot; BCS Computer amd Internet Security</div>
+      <div class="s-school">Carleton University &middot; BCS Computer and Internet Security</div>
       <div class="status"><div class="dot"></div>seeking fall 2026 internship</div>
     </div>
 
@@ -299,14 +432,14 @@
           <div class="out"><span class="oc">github</span>     -> github.com/oumar-h</div>
           <div class="out"><span class="oc">linkedin</span>   -> linkedin.com/in/oumar-hassen-0775543bb</div>
           <div class="out"><span class="oc">education</span>  -> Carleton University, BCS Computer &amp; Internet Security</div>
-          <div class="out"><span class="oc">enrolled</span>   -> August 2023 &ndash; present</div>
+          <div class="out"><span class="oc">enrolled</span>   -> September 2023 &ndash; present</div>
           <div class="out"><span class="oc">target</span>     -> SOC Analyst Intern &middot; Fall 2026 &middot; Ottawa | Toronto</div>
           <br>
           <div class="om"># about</div>
           <br>
           <div class="out">I'm a cybersecurity student at Carleton University specializing in</div>
           <div class="out">Computer and Internet Security. I've worked as a SOC Analyst Intern</div>
-          <div class="out"> at Harari Heritage Center &mdash; protecting 1,000+ members'</div>
+          <div class="out">at Harari Heritage Center &mdash; protecting 1,000+ members'</div>
           <div class="out">personal and payment data, running phishing and smishing simulations,</div>
           <div class="out">and delivering security awareness training to non-technical audiences.</div>
           <br>
@@ -358,59 +491,161 @@
       </div>
     </div>
 
-    <!-- PROJECTS -->
+    <!-- PROJECTS (fully redesigned) -->
     <div class="content" id="page-projects">
       <div class="sh"><h2>projects</h2></div>
 
-      <div class="pcard">
-        <div class="ptop">
-          <div class="pname">SOC Investigation Lab</div>
-          <span class="plang">Kali &middot; Splunk &middot; Linux</span>
-        </div>
-        <div class="pdesc">
-          Simulated and investigated five real-world attack scenarios on a controlled Linux environment.
-          Detected 47+ failed SSH login attempts (T1110.001) from a single source IP within 60 seconds,
-          triggering a custom Splunk threshold alert. Identified Nmap reconnaissance patterns (T1046),
-          investigated suspicious processes with abnormal CPU usage, and analyzed account compromise
-          scenarios. All events ingested into Splunk with SPL queries, custom dashboards, and full SOC reports.
-        </div>
-        <div class="tags">
-          <span class="tag">Splunk SIEM</span>
-          <span class="tag">Kali Linux</span>
-          <span class="tag">Nmap</span>
-          <span class="tag">Wireshark</span>
-          <span class="tag">Log Analysis</span>
-          <span class="tag">Incident Response</span>
-          <span class="tag">SPL Queries</span>
-          <span class="mitre">T1110.001</span>
-          <span class="mitre">T1046</span>
-          <span class="mitre">T1059</span>
-          <span class="mitre">T1078</span>
+      <!-- count bar -->
+      <div class="tblock" style="margin-bottom:1.25rem;">
+        <div class="tbody" style="padding:.75rem 1.5rem; display:flex; gap:2rem; align-items:center;">
+          <div class="out"><span class="oc">total</span> -> 3 projects</div>
+          <div class="out"><span class="og">security</span> -> 2</div>
+          <div class="out"><span class="oc">fullstack</span> -> 1</div>
+          <div style="margin-left:auto;"><span class="badge badge-green">all public on github</span></div>
         </div>
       </div>
 
-      <div class="pcard">
-        <div class="ptop">
-          <div class="pname">Harari EBDAL Cultural Platform</div>
-          <span class="plang">React &middot; Node &middot; MongoDB</span>
+      <div class="projects-grid">
+
+        <!-- PROJECT 1: SOC Lab -->
+        <div class="pcard">
+          <div class="pcard-accent amber"></div>
+          <div class="pcard-inner">
+            <div class="pcard-header">
+              <div class="pcard-left">
+                <div class="pcard-number">project_01 &mdash; security / blue team</div>
+                <div class="pname">SOC Investigation Lab</div>
+              </div>
+              <div class="pcard-right">
+                <span class="pstatus lab">lab environment</span>
+                <span class="plang">Kali &middot; Splunk &middot; Linux</span>
+              </div>
+            </div>
+
+            <div class="pcard-meta">
+              <div class="pmeta-item"><span class="pmeta-label">platform</span><span class="pmeta-val">Kali Linux VM</span></div>
+              <div class="pmeta-item"><span class="pmeta-label">SIEM</span><span class="pmeta-val">Splunk</span></div>
+              <div class="pmeta-item"><span class="pmeta-label">scenarios</span><span class="pmeta-val">5 attack types</span></div>
+              <div class="pmeta-item"><span class="pmeta-label">alerts triggered</span><span class="pmeta-val">47+ SSH failures</span></div>
+            </div>
+
+            <ul class="pcard-bullets">
+              <li>Simulated and investigated five real-world attack scenarios on a controlled Linux environment including SSH brute force, Nmap recon, account compromise, and suspicious process execution</li>
+              <li>Detected 47+ failed SSH login attempts (T1110.001) from a single source IP within 60 seconds, triggering a custom Splunk threshold alert</li>
+              <li>Identified Nmap reconnaissance patterns (T1046) and correlated events across logs using SPL queries and custom dashboards</li>
+              <li>Produced full SOC incident reports for each scenario with root cause analysis and recommended remediations</li>
+            </ul>
+
+            <div class="tags">
+              <span class="tag">Splunk SIEM</span>
+              <span class="tag">Kali Linux</span>
+              <span class="tag">Nmap</span>
+              <span class="tag">Wireshark</span>
+              <span class="tag">Log Analysis</span>
+              <span class="tag">Incident Response</span>
+              <span class="tag">SPL Queries</span>
+              <span class="mitre">T1110.001</span>
+              <span class="mitre">T1046</span>
+              <span class="mitre">T1059</span>
+              <span class="mitre">T1078</span>
+            </div>
+          </div>
+          <div class="pcard-footer">
+            <a class="gh-link" href="https://github.com/oumar-h" target="_blank">github.com/oumar-h/soc-lab</a>
+          </div>
         </div>
-        <div class="pdesc">
-          Full-stack cultural platform with React/Vite frontend and Vercel serverless APIs handling
-          subscriptions, donations, and admin management. Integrated Stripe Checkout and webhook handling
-          for secure payment processing. Designed MongoDB Atlas database with Brevo SMTP email automation.
-          Deployed production-ready app with secure environment configuration and authenticated admin dashboard.
+
+        <!-- PROJECT 2: Port Scanner -->
+        <div class="pcard">
+          <div class="pcard-accent green"></div>
+          <div class="pcard-inner">
+            <div class="pcard-header">
+              <div class="pcard-left">
+                <div class="pcard-number">project_02 &mdash; security / network recon</div>
+                <div class="pname">Multithreaded TCP Port Scanner</div>
+              </div>
+              <div class="pcard-right">
+                <span class="pstatus personal">open source</span>
+                <span class="plang">Python &middot; Sockets &middot; Threading</span>
+              </div>
+            </div>
+
+            <div class="pcard-meta">
+              <div class="pmeta-item"><span class="pmeta-label">language</span><span class="pmeta-val">Python 3.6+</span></div>
+              <div class="pmeta-item"><span class="pmeta-label">architecture</span><span class="pmeta-val">4 modules</span></div>
+              <div class="pmeta-item"><span class="pmeta-label">dependencies</span><span class="pmeta-val">stdlib only</span></div>
+              <div class="pmeta-item"><span class="pmeta-label">targets</span><span class="pmeta-val">IP / domain / CIDR</span></div>
+            </div>
+
+            <ul class="pcard-bullets">
+              <li>Built a multithreaded TCP port scanner using ThreadPoolExecutor — scans hundreds of ports simultaneously across single IPs, domains, or entire subnets</li>
+              <li>Implemented service banner grabbing via HTTP HEAD requests to fingerprint running services on open ports</li>
+              <li>Designed clean modular architecture across 4 files (main, scanner, network, cli) with full docstrings and proper exception handling</li>
+              <li>Outputs structured JSON results for downstream analysis; tested live against home network discovering real open ports (135, 445, 139)</li>
+            </ul>
+
+            <div class="tags">
+              <span class="tag">Python</span>
+              <span class="tag">Socket Programming</span>
+              <span class="tag">Multithreading</span>
+              <span class="tag">Network Recon</span>
+              <span class="tag">Banner Grabbing</span>
+              <span class="tag">argparse</span>
+              <span class="tag">JSON Output</span>
+              <span class="mitre">T1046</span>
+            </div>
+          </div>
+          <div class="pcard-footer">
+            <a class="gh-link" href="https://github.com/oumar-h/port-scanner" target="_blank">github.com/oumar-h/port-scanner</a>
+          </div>
         </div>
-        <div class="tags">
-          <span class="tag">React</span>
-          <span class="tag">Vite</span>
-          <span class="tag">Tailwind CSS</span>
-          <span class="tag">Node.js</span>
-          <span class="tag">MongoDB Atlas</span>
-          <span class="tag">Stripe</span>
-          <span class="tag">Vercel</span>
-          <span class="tag">Brevo SMTP</span>
-          <span class="tag">Serverless APIs</span>
+
+        <!-- PROJECT 3: Harari Platform -->
+        <div class="pcard">
+          <div class="pcard-accent cyan"></div>
+          <div class="pcard-inner">
+            <div class="pcard-header">
+              <div class="pcard-left">
+                <div class="pcard-number">project_03 &mdash; fullstack / production</div>
+                <div class="pname">Harari EBDAL Cultural Platform</div>
+              </div>
+              <div class="pcard-right">
+                <span class="pstatus live">live in production</span>
+                <span class="plang">React &middot; Node &middot; MongoDB</span>
+              </div>
+            </div>
+
+            <div class="pcard-meta">
+              <div class="pmeta-item"><span class="pmeta-label">frontend</span><span class="pmeta-val">React + Vite</span></div>
+              <div class="pmeta-item"><span class="pmeta-label">backend</span><span class="pmeta-val">Vercel Serverless</span></div>
+              <div class="pmeta-item"><span class="pmeta-label">payments</span><span class="pmeta-val">Stripe Checkout</span></div>
+              <div class="pmeta-item"><span class="pmeta-label">status</span><span class="pmeta-val">production</span></div>
+            </div>
+
+            <ul class="pcard-bullets">
+              <li>Developed a full-stack cultural platform with React/Vite frontend and Vercel serverless APIs handling subscriptions, donations, and admin management</li>
+              <li>Integrated Stripe Checkout and webhook handling to securely process online donations and automate payment lifecycle events</li>
+              <li>Designed MongoDB Atlas schema with Brevo SMTP email automation for user onboarding and admin notifications</li>
+              <li>Deployed production-ready app with secure environment configuration, authenticated admin dashboard, and fully responsive UI</li>
+            </ul>
+
+            <div class="tags">
+              <span class="tag">React</span>
+              <span class="tag">Vite</span>
+              <span class="tag">Tailwind CSS</span>
+              <span class="tag">Node.js</span>
+              <span class="tag">MongoDB Atlas</span>
+              <span class="tag">Stripe</span>
+              <span class="tag">Vercel</span>
+              <span class="tag">Brevo SMTP</span>
+              <span class="tag tag-cyan">Serverless APIs</span>
+            </div>
+          </div>
+          <div class="pcard-footer">
+            <a class="gh-link" href="https://github.com/oumar-h" target="_blank">github.com/oumar-h/harari-ebdal</a>
+          </div>
         </div>
+
       </div>
     </div>
 
@@ -516,7 +751,7 @@
           <div class="out"><span class="oc">school</span>  -> Carleton University, Ottawa, ON</div>
           <div class="out"><span class="oc">degree</span>  -> Bachelor of Computer Science</div>
           <div class="out"><span class="oc">major</span>   -> Computer and Internet Security</div>
-          <div class="out"><span class="oc">period</span>  -> August 2023 &ndash; present</div>
+          <div class="out"><span class="oc">period</span>  -> September 2023 &ndash; present</div>
         </div>
       </div>
     </div>
